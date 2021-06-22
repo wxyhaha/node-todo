@@ -1,29 +1,12 @@
-const homedir=require('os').homedir()git
+const homedir=require('os').homedir()
 const home=process.env.HOME || homedir
 const p=require('path')
 const fs=require('fs')
 const dbPath=p.join(home,'.todo')
+const db=require('./db.js')
 
-module.exports.add=(title)=>{
-  fs.readFile(dbPath,{flag:'a+'},(error,data)=>{
-    if(error){console.log(error)}
-    else{
-      let list
-      try {
-        list=JSON.parse(data.toString())
-      }catch (error2){
-        list=[]
-      }
-      console.log(list);
-      const task={
-        title:title,
-        done:false
-      }
-      list.push(task)
-      const string=JSON.stringify(list)
-      fs.writeFile(dbPath,string+'\n',(error3)=>{
-        if(error3){console.log(error3);}
-      })
-    }
-  })
+module.exports.add=async (title)=>{
+  const list=await db.read()
+  list.push({title,done:false})
+  await db.write(list)
 }
